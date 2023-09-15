@@ -22,8 +22,11 @@ enum Commands {
         /// Read from this storage
         storage: String,
         /// Lists all storage contents
-        #[arg(short, long)]
+        #[arg(name = "list", short, long, conflicts_with = "size")]
         list: bool,
+        /// Gets the size of the storage
+        #[arg(name = "size", short, long, conflicts_with = "list")]
+        size: bool,
     },
 
     /// Create an empty storage
@@ -53,14 +56,22 @@ enum Commands {
 pub fn execute() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Commands::Read { storage, list } => {
-            if list {
-                let mut file = File::open(storage)?;
-                let storage = load_store(&mut file)?;
+        Commands::Read {
+            storage,
+            list,
+            size,
+        } => {
+            let mut file = File::open(storage)?;
+            let storage = load_store(&mut file)?;
 
+            if list {
                 storage.iter().for_each(|(id, item)| {
                     println!("{id}\t{item}");
                 });
+            }
+
+            if size {
+                println!("The size of storage is: {}", storage.len());
             }
         }
         Commands::Insert {
