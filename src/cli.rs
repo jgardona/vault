@@ -22,7 +22,7 @@ enum Commands {
         /// Read from this storage
         storage: String,
         /// Lists all storage contents
-        #[arg(name = "list", short, long, conflicts_with = "size")]
+        #[arg(name = "list", short, long)]
         list: bool,
         /// Gets the size of the storage
         #[arg(name = "size", short, long, conflicts_with = "list")]
