@@ -10,11 +10,15 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(user: Option<&str>, password: Option<&str>, description: Option<&str>) -> Self {
+    pub fn new(
+        user: Option<impl Into<String>>,
+        password: Option<impl Into<String>>,
+        description: Option<impl Into<String>>,
+    ) -> Self {
         Self {
-            user: user.map(|s| s.to_owned()),
-            password: password.map(|s| s.to_owned()),
-            description: description.map(|s| s.to_owned()),
+            user: user.map(|s| s.into()),
+            password: password.map(|s| s.into()),
+            description: description.map(|s| s.into()),
         }
     }
 }

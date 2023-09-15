@@ -1,6 +1,6 @@
 [package]
 name = "vault"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 description = "A key value tool for persist your passwords"
 

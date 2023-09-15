@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     model::Item,
-    store::{add_item, create_storage, load_store, sync_store, remove_item},
+    store::{add_item, create_storage, load_store, remove_item, sync_store},
 };
 
 #[derive(Parser)]
@@ -45,9 +45,9 @@ enum Commands {
     Remove {
         /// Remove from this storage
         storage: String,
-        /// The id to remove 
-        id: usize
-    }
+        /// The id to remove
+        id: usize,
+    },
 }
 
 pub fn execute() -> Result<()> {
@@ -58,7 +58,7 @@ pub fn execute() -> Result<()> {
                 let mut file = File::open(storage)?;
                 let storage = load_store(&mut file)?;
 
-                (storage.iter()).clone().for_each(|(id, item)| {
+                storage.iter().for_each(|(id, item)| {
                     println!("{id}\t{item}");
                 });
             }
