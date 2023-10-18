@@ -5,7 +5,7 @@ Vault is a key value store for your keys. The keys are stored and persisted in j
 * **Install**
 
 ```
-cargo install --git https://github.com/jcbritobr/vault
+cargo install --git https://github.com/jgardona/vault
 ```
 * **How to use?**
 
@@ -40,7 +40,7 @@ $ vault insert ~/.storage "user" "key" "description"
 
 * **List**
 ```
-$ vault read ~/Documents/vstorage2 -l
+$ vault read ~/.storage -l
 +----+---------------------+-----------------+-----------------------------+
 | id | user                | password        | description                 |
 +----+---------------------+-----------------+-----------------------------+
