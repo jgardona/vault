@@ -2,11 +2,31 @@ use std::fs::{File, OpenOptions};
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use tabled::{Table, Tabled};
 
 use crate::{
     model::Item,
     store::{add_item, create_storage, load_store, remove_item, sync_store},
 };
+
+#[derive(Tabled)]
+struct ItemTable<'a> {
+    id: usize,
+    user: &'a str,
+    password: &'a str,
+    description: &'a str,
+}
+
+impl<'a> ItemTable<'a> {
+    fn new(id: usize, user: &'a str, password: &'a str, description: &'a str) -> Self {
+        Self {
+            id,
+            user,
+            password,
+            description,
+        }
+    }
+}
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -30,7 +50,10 @@ enum Commands {
     },
 
     /// Create an empty storage
-    Create { storage: String },
+    Create {
+        /// Read from this storage
+        storage: String,
+    },
 
     /// Insert an item in storage
     Insert {
@@ -63,11 +86,20 @@ pub fn execute() -> Result<()> {
         } => {
             let mut file = File::open(storage)?;
             let storage = load_store(&mut file)?;
+            let mut items: Vec<ItemTable> = vec![];
 
             if list {
                 storage.iter().for_each(|(id, item)| {
-                    println!("{id}\t{item}");
+                    let id = *id;
+                    let user = item.user.as_deref().unwrap_or_default();
+                    let password = item.password.as_deref().unwrap_or_default();
+                    let description = item.description.as_deref().unwrap_or_default();
+                    let v = ItemTable::new(id, user, password, description);
+                    items.push(v);
                 });
+
+                let table = Table::new(items).to_string();
+                println!("{table}");
             }
 
             if size {
