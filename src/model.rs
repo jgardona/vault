@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
-    user: Option<String>,
-    password: Option<String>,
-    description: Option<String>,
+    pub user: Option<String>,
+    pub password: Option<String>,
+    pub description: Option<String>,
 }
 
 impl Item {
