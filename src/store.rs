@@ -54,10 +54,6 @@ pub fn add_item<D: DerefMut<Target = HashMap<usize, Item>>>(
     Ok(())
 }
 
-// pub fn len<D: DerefMut<Target = HashMap<usize, Item>>>(buffer: &D) -> usize {
-//     buffer.len()
-// }
-
 pub fn remove_item<D: DerefMut<Target = HashMap<usize, Item>>>(
     buffer: &mut D,
     id: usize,
@@ -92,7 +88,7 @@ mod store_tests {
 
     use crate::{
         model::Item,
-        store::{add_item, load_store},
+        store::{add_item, load_store, remove_item},
     };
 
     use super::{create_storage, sync_store, Store};
@@ -124,13 +120,13 @@ mod store_tests {
             assert_eq!(expected, reference.len());
         }
 
-        // let item2 = Item::new(Some("cris@bol.com.br"), Some("234"), Some("senha do email"));
+        let item2 = Item::new(Some("cris@bol.com.br"), Some("234"), Some("senha do email"));
 
-        // add_item(&mut store, item2).unwrap();
-        // assert_eq!(2, len(&store));
+        add_item(&mut store, item2).unwrap();
+        assert_eq!(2, store.len());
 
-        // remove_item(&mut store, 2).unwrap();
-        // assert_eq!(1, len(&store))
+        remove_item(&mut store, 2).unwrap();
+        assert_eq!(1, store.len())
     }
 
     #[test]

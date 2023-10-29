@@ -147,6 +147,60 @@ pub fn execute() -> Result<()> {
 
 #[cfg(test)]
 mod cli_tests {
+    use std::{fs, path::Path};
+
+    use assert_cmd::Command;
+
+    const FILE_PATH: &str = "tests/store.json";
+
     #[test]
     fn it_works() {}
+
+    #[test]
+    fn test_create_store() {
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("create").arg(FILE_PATH).assert().success();
+        let path = Path::new(FILE_PATH);
+        assert!(path.exists());
+        fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn test_insert_remove() {
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("create").arg(FILE_PATH).assert().success();
+
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("insert")
+            .arg(FILE_PATH)
+            .arg("user1")
+            .arg("123456")
+            .arg("key one")
+            .assert()
+            .success();
+
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("read")
+            .arg(FILE_PATH)
+            .arg("-l")
+            .assert()
+            .stdout(predicates::str::contains("123456"))
+            .success();
+
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("remove").arg(FILE_PATH).arg("1").assert().success();
+
+        let mut cmd = Command::cargo_bin("vault").unwrap();
+        cmd.arg("read")
+            .arg(FILE_PATH)
+            .arg("-l")
+            .assert()
+            .stdout(predicates::boolean::NotPredicate::new(
+                predicates::str::diff("123456"),
+            ))
+            .success();
+
+        let path = Path::new(FILE_PATH);
+        fs::remove_file(path).unwrap();
+    }
 }
