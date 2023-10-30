@@ -1,6 +1,5 @@
 use std::fs::{File, OpenOptions};
 
-use anyhow::Result;
 use clap::{Parser, Subcommand};
 use tabled::{Table, Tabled};
 
@@ -76,7 +75,7 @@ enum Commands {
     },
 }
 
-pub fn execute() -> Result<()> {
+pub fn execute() -> std::io::Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Commands::Read {
@@ -149,6 +148,7 @@ pub fn execute() -> Result<()> {
 mod cli_tests {
     use std::{fs, path::Path};
 
+    use anyhow::{Ok, Result};
     use assert_cmd::Command;
 
     const FILE_PATH: &str = "tests/store.json";
@@ -157,20 +157,21 @@ mod cli_tests {
     fn it_works() {}
 
     #[test]
-    fn test_create_store() {
-        let mut cmd = Command::cargo_bin("vault").unwrap();
-        cmd.arg("create").arg(FILE_PATH).assert().success();
+    fn test_create_store() -> Result<()> {
+        let mut cmd = Command::cargo_bin("vault")?;
+        cmd.arg("create").arg(FILE_PATH).assert();
         let path = Path::new(FILE_PATH);
         assert!(path.exists());
-        fs::remove_file(path).unwrap();
+        fs::remove_file(path)?;
+        Ok(())
     }
 
     #[test]
-    fn test_insert_remove() {
-        let mut cmd = Command::cargo_bin("vault").unwrap();
+    fn test_insert_remove() -> Result<()> {
+        let mut cmd = Command::cargo_bin("vault")?;
         cmd.arg("create").arg(FILE_PATH).assert().success();
 
-        let mut cmd = Command::cargo_bin("vault").unwrap();
+        let mut cmd = Command::cargo_bin("vault")?;
         cmd.arg("insert")
             .arg(FILE_PATH)
             .arg("user1")
@@ -179,7 +180,7 @@ mod cli_tests {
             .assert()
             .success();
 
-        let mut cmd = Command::cargo_bin("vault").unwrap();
+        let mut cmd = Command::cargo_bin("vault")?;
         cmd.arg("read")
             .arg(FILE_PATH)
             .arg("-l")
@@ -187,10 +188,10 @@ mod cli_tests {
             .stdout(predicates::str::contains("123456"))
             .success();
 
-        let mut cmd = Command::cargo_bin("vault").unwrap();
-        cmd.arg("remove").arg(FILE_PATH).arg("1").assert().success();
+        let mut cmd = Command::cargo_bin("vault")?;
+        cmd.arg("remove").arg(FILE_PATH).arg("1").assert();
 
-        let mut cmd = Command::cargo_bin("vault").unwrap();
+        let mut cmd = Command::cargo_bin("vault")?;
         cmd.arg("read")
             .arg(FILE_PATH)
             .arg("-l")
@@ -201,6 +202,7 @@ mod cli_tests {
             .success();
 
         let path = Path::new(FILE_PATH);
-        fs::remove_file(path).unwrap();
+        fs::remove_file(path)?;
+        Ok(())
     }
 }

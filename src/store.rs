@@ -5,7 +5,6 @@ use std::{
 };
 
 use crate::model::Item;
-use anyhow::{anyhow, Ok, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -35,7 +34,7 @@ impl Store {
     }
 }
 
-pub fn create_storage<W: Write>(writer: &mut W) -> Result<()> {
+pub fn create_storage<W: Write>(writer: &mut W) -> std::io::Result<()> {
     let storage = Store::new();
     let data = serde_json::to_string(&storage)?;
     writer.write_all(data.as_bytes())?;
@@ -45,11 +44,14 @@ pub fn create_storage<W: Write>(writer: &mut W) -> Result<()> {
 pub fn add_item<D: DerefMut<Target = HashMap<usize, Item>>>(
     buffer: &mut D,
     item: Item,
-) -> Result<()> {
+) -> std::io::Result<()> {
     let mut id = buffer.len();
     id += 1;
     if buffer.insert(id, item).is_some() {
-        return Err(anyhow!("The key {id } already exists"));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "The key already exists",
+        ));
     }
     Ok(())
 }
@@ -57,9 +59,12 @@ pub fn add_item<D: DerefMut<Target = HashMap<usize, Item>>>(
 pub fn remove_item<D: DerefMut<Target = HashMap<usize, Item>>>(
     buffer: &mut D,
     id: usize,
-) -> Result<()> {
+) -> std::io::Result<()> {
     if buffer.remove(&id).is_none() {
-        return Err(anyhow!("The key {id} wasn't found"));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "The key wasn't found",
+        ));
     }
 
     Ok(())
@@ -68,13 +73,13 @@ pub fn remove_item<D: DerefMut<Target = HashMap<usize, Item>>>(
 pub fn sync_store<W: Write, D: Serialize + DerefMut<Target = HashMap<usize, Item>>>(
     buffer: &mut D,
     writer: &mut W,
-) -> Result<()> {
+) -> std::io::Result<()> {
     let serialized = serde_json::to_string(&buffer)?;
     writer.write_all(serialized.as_bytes())?;
     Ok(())
 }
 
-pub fn load_store<R: Read>(reader: &mut R) -> Result<Store> {
+pub fn load_store<R: Read>(reader: &mut R) -> std::io::Result<Store> {
     let mut buffer = String::new();
     reader.read_to_string(&mut buffer)?;
 
@@ -85,6 +90,8 @@ pub fn load_store<R: Read>(reader: &mut R) -> Result<Store> {
 #[cfg(test)]
 mod store_tests {
     use std::io::Cursor;
+
+    use anyhow::{Ok, Result};
 
     use crate::{
         model::Item,
@@ -97,7 +104,7 @@ mod store_tests {
     fn it_works() {}
 
     #[test]
-    fn test_store_workflow() {
+    fn test_store_workflow() -> Result<()> {
         let store = Store::new();
         let mut expected: usize = 0;
 
@@ -122,37 +129,40 @@ mod store_tests {
 
         let item2 = Item::new(Some("cris@bol.com.br"), Some("234"), Some("senha do email"));
 
-        add_item(&mut store, item2).unwrap();
+        add_item(&mut store, item2)?;
         assert_eq!(2, store.len());
 
-        remove_item(&mut store, 2).unwrap();
-        assert_eq!(1, store.len())
+        remove_item(&mut store, 2)?;
+        assert_eq!(1, store.len());
+        Ok(())
     }
 
     #[test]
-    fn test_create_storage() {
+    fn test_create_storage() -> Result<()> {
         let expected = r#"{"data":{}}"#;
         let mut cursor = Cursor::new(Vec::<u8>::new());
-        create_storage(&mut cursor).unwrap();
-        let data = String::from_utf8(cursor.into_inner()).unwrap();
+        create_storage(&mut cursor)?;
+        let data = String::from_utf8(cursor.into_inner())?;
         println!("{}", data);
         assert_eq!(expected, data);
+        Ok(())
     }
 
     #[test]
-    fn test_store_sync() {
+    fn test_store_sync() -> Result<()> {
         let expected = r#"{"data":{"1":{"user":"test@gmail.com","password":"123","description":"just for tests"}}}"#;
         let mut cursor = Cursor::new(Vec::<u8>::new());
         let mut store = Store::new();
         let item = Item::new(Some("test@gmail.com"), Some("123"), Some("just for tests"));
-        add_item(&mut store, item).unwrap();
-        sync_store(&mut store, &mut cursor).unwrap();
-        let data = String::from_utf8(cursor.get_ref().to_vec()).unwrap();
+        add_item(&mut store, item)?;
+        sync_store(&mut store, &mut cursor)?;
+        let data = String::from_utf8(cursor.get_ref().to_vec())?;
 
         assert_eq!(expected, &data);
         cursor.set_position(0);
-        let store = load_store(&mut cursor).unwrap();
+        let store = load_store(&mut cursor)?;
         let len = store.len();
         assert_eq!(1, len);
+        Ok(())
     }
 }
