@@ -3,12 +3,17 @@ name = "vault"
 version = "0.1.4"
 edition = "2021"
 description = "A key value tool to persist your passwords"
+authors = ["Julio Gardona <jcbritobr@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/jgardona/vault"
+license = "MIT"
+keywords = ["storage", "key", "crypto", "cli"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tabled = "*"
-anyhow = "1.0.75"
+tabled = "0.14.0"
 clap = { version = "4.4.2", features = ["derive"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.105"
@@ -16,6 +21,7 @@ serde_json = "1.0.105"
 [dev-dependencies]
 assert_cmd = "2.0.12"
 predicates = "3.0.4"
+anyhow = "1.0.75"
 
 [profile.release]
 strip=true
