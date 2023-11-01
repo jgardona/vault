@@ -1,19 +1,19 @@
-# Vault
+# SYK
 
-Vault is a key value store for your keys. The keys are stored and persisted in json format file.
+Syk (store your keys) is a key value store for your keys. The keys are stored and persisted in json format file.
 
 * **Install**
 
 ```
-cargo install vault
+cargo install syk
 ```
 * **How to use?**
 
 ```
-$ vault -h
+$ syk -h
 A key value tool to persist your passwords
 
-Usage: vault <COMMAND>
+Usage: syk <COMMAND>
 
 Commands:
   read    Read data from storage
@@ -31,18 +31,18 @@ Options:
 
 * **Create storage**
 ```
-$ vault create ~/.storage
+$ syk create ~/.storage
 ```
 
 * **Insert**
 
 ```
-$ vault insert ~/.storage "user" "key" "description"
+$ syk insert ~/.storage "user" "key" "description"
 ```
 
 * **List**
 ```
-$ vault read ~/.storage -l
+$ syk read ~/.storage -l
 +----+---------------------+-----------------+-----------------------------+
 | id | user                | password        | description                 |
 +----+---------------------+-----------------+-----------------------------+
@@ -57,7 +57,7 @@ $ vault read ~/.storage -l
 * **Remove**
 
 ```
-$ vault remove ~/.storage 1
+$ syk remove ~/.storage 1
 ```
 
 * **Lock**
@@ -65,7 +65,7 @@ $ vault remove ~/.storage 1
 Lock will encrypt and compress your storage to make it safe.
 
 ```
-$ vault lock ~/.storage ~/.storage_package
+$ syk lock ~/.storage ~/.storage_package
 ```
 
 * **Unlock**
@@ -73,5 +73,5 @@ $ vault lock ~/.storage ~/.storage_package
 Unlock will decompress and decrypt your storage to make it readable.
 
 ```
-$ vault unlock ~/.storage_package ~/.storage
+$ syk unlock ~/.storage_package ~/.storage
 ```

@@ -12,7 +12,7 @@ fn it_works() {}
 
 #[test]
 fn test_create_store() -> Result<()> {
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("create").arg(FILE_PATH).assert();
     let path = Path::new(FILE_PATH);
     assert!(path.exists());
@@ -28,7 +28,7 @@ fn test_insert() -> Result<()> {
     let file = tmp.child("test_insert.json");
     file.write_binary(CONTENT)?;
 
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("insert")
         .arg(file.path())
         .arg("user1")
@@ -50,7 +50,7 @@ fn test_size() -> Result<()> {
     let file = tmp.child("test_size.json");
     file.write_binary(CONTENT)?;
 
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("read")
         .arg(file.path())
         .arg("-s")
@@ -69,7 +69,7 @@ fn test_list() -> Result<()> {
     let file = tmp.child("test_size.json");
     file.write_binary(CONTENT)?;
 
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("read")
         .arg(file.path())
         .arg("-l")
@@ -88,7 +88,7 @@ fn test_lock_unlock() -> Result<()> {
     let file = tmp.child("test_size.json");
     file.write_binary(CONTENT)?;
 
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("lock")
         .arg(file.path())
         .arg(tmp.path().join("output.json"))
@@ -97,7 +97,7 @@ fn test_lock_unlock() -> Result<()> {
 
     drop(cmd);
 
-    let mut cmd2 = Command::cargo_bin("vault")?;
+    let mut cmd2 = Command::cargo_bin("syk")?;
     cmd2.arg("unlock")
         .arg(tmp.path().join("output.json"))
         .arg(tmp.path().join("output2.json"))
@@ -116,7 +116,7 @@ fn test_remove() -> Result<()> {
     let file = tmp.child("test_size.json");
     file.write_binary(CONTENT)?;
 
-    let mut cmd = Command::cargo_bin("vault")?;
+    let mut cmd = Command::cargo_bin("syk")?;
     cmd.arg("remove")
         .arg(file.path())
         .arg("1")

@@ -1,11 +1,11 @@
 [package]
-name = "vault"
+name = "syk"
 version = "0.2.0"
 edition = "2021"
 description = "A key value tool to persist your passwords"
 authors = ["Julio Gardona <jcbritobr@gmail.com>"]
 readme = "README.md"
-repository = "https://github.com/jgardona/vault"
+repository = "https://github.com/jgardona/syk"
 license = "MIT"
 keywords = ["storage", "key", "crypto", "cli"]
 categories = ["command-line-utilities"]
