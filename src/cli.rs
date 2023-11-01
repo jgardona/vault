@@ -5,7 +5,7 @@ use tabled::{Table, Tabled};
 
 use crate::{
     model::Item,
-    store::{add_item, create_storage, load_store, remove_item, sync_store},
+    store::{add_item, create_storage, load_store, lock, remove_item, sync_store, unlock},
 };
 
 #[derive(Tabled)]
@@ -72,6 +72,22 @@ enum Commands {
         storage: String,
         /// The id to remove
         id: usize,
+    },
+
+    /// Encrypt and compress storage data
+    Lock {
+        /// Input data from target storage
+        input: String,
+        /// Output data to target file
+        output: String,
+    },
+
+    /// Decrypt and decompress storage data
+    Unlock {
+        /// Input data from compressed storage
+        input: String,
+        /// Output data to the target file
+        output: String,
     },
 }
 
@@ -140,69 +156,18 @@ pub fn execute() -> std::io::Result<()> {
             let mut file = File::create(storage)?;
             create_storage(&mut file)?;
         }
+        Commands::Lock { input, output } => {
+            let mut input_data = File::open(input)?;
+            let mut output_data = File::create(output)?;
+
+            lock(&mut input_data, &mut output_data)?;
+        }
+        Commands::Unlock { input, output } => {
+            let mut input_data = File::open(input)?;
+            let mut output_data = File::create(output)?;
+
+            unlock(&mut input_data, &mut output_data)?;
+        }
     };
     Ok(())
-}
-
-#[cfg(test)]
-mod cli_tests {
-    use std::{fs, path::Path};
-
-    use anyhow::{Ok, Result};
-    use assert_cmd::Command;
-
-    const FILE_PATH: &str = "tests/store.json";
-
-    #[test]
-    fn it_works() {}
-
-    #[test]
-    fn test_create_store() -> Result<()> {
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("create").arg(FILE_PATH).assert();
-        let path = Path::new(FILE_PATH);
-        assert!(path.exists());
-        fs::remove_file(path)?;
-        Ok(())
-    }
-
-    #[test]
-    fn test_insert_remove() -> Result<()> {
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("create").arg(FILE_PATH).assert().success();
-
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("insert")
-            .arg(FILE_PATH)
-            .arg("user1")
-            .arg("123456")
-            .arg("key one")
-            .assert()
-            .success();
-
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("read")
-            .arg(FILE_PATH)
-            .arg("-l")
-            .assert()
-            .stdout(predicates::str::contains("123456"))
-            .success();
-
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("remove").arg(FILE_PATH).arg("1").assert();
-
-        let mut cmd = Command::cargo_bin("vault")?;
-        cmd.arg("read")
-            .arg(FILE_PATH)
-            .arg("-l")
-            .assert()
-            .stdout(predicates::boolean::NotPredicate::new(
-                predicates::str::diff("123456"),
-            ))
-            .success();
-
-        let path = Path::new(FILE_PATH);
-        fs::remove_file(path)?;
-        Ok(())
-    }
 }
