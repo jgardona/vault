@@ -5,7 +5,7 @@ Vault is a key value store for your keys. The keys are stored and persisted in j
 * **Install**
 
 ```
-cargo install --git https://github.com/jgardona/vault
+cargo install vault
 ```
 * **How to use?**
 
@@ -20,6 +20,8 @@ Commands:
   create  Create an empty storage
   insert  Insert an item in storage
   remove  Remove an item from storage
+  lock    Encrypt and compress storage data
+  unlock  Decrypt and decompress storage data
   help    Print this message or the help of the given subcommand(s)
 
 Options:
@@ -56,4 +58,20 @@ $ vault read ~/.storage -l
 
 ```
 $ vault remove ~/.storage 1
+```
+
+* **Lock**
+
+Lock will encrypt and compress your storage to make it safe.
+
+```
+$ vault lock ~/.storage ~/.storage_package
+```
+
+* **Unlock**
+
+Unlock will decompress and decrypt your storage to make it readable.
+
+```
+$ vault unlock ~/.storage_package ~/.storage
 ```
